@@ -60,8 +60,7 @@ def settings():
     prefixes = getattr(mod, "CMD_PREFIXES")
     if not isinstance(prefixes, list):
         setattr(mod, "CMD_PREFIXES", [prefixes])
-    if getattr(mod, "STARKBOTS"):
-
+    if getattr(mod, "STARKBOTS") or os.getenv("STARKBOTS", ""):
         # FULL_MESSAGES
         if "FULL_MESSAGES" not in mod.__dict__ or not getattr(mod, "FULL_MESSAGES"):
             # START
@@ -82,7 +81,8 @@ def settings():
                 .replace("{2}", (("\n\nSource Code : [Click Here](https://github.com/StarkBotsIndustries/"+rep+")") if rep else ""))
             )
         # MUST_JOIN
-        setattr(mod, "MUST_JOIN", ["StarkBots", "StarkBotsChat"])
+        if not getattr(mod, "MUST_JOIN") and ("special" in os.getenv("MUST_JOIN", "") or os.getenv("STARKBOTS", "")):
+            setattr(mod, "MUST_JOIN", ["StarkBots", "StarkBotsChat"])
 
         # ADDONS
         if "ADDONS" not in mod.__dict__:
@@ -131,8 +131,6 @@ class ENV:
     if DATABASE_URL:
         if 'postgres' in DATABASE_URL and 'postgresql' not in DATABASE_URL:
             DATABASE_URL = DATABASE_URL.replace("postgres", "postgresql")
-    REDIS_URL = os.environ.get("REDIS_URL", "").strip()
-    REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "").strip()
 
     def __init__(self):
         module = settings()
@@ -150,10 +148,10 @@ class ENV:
             self.LOG_CHAT = 0
 
         if "special" in self.OWNER_ID or getattr(module, "STARKBOTS"):
-            if not self.OWNER_ID:
+            if not self.OWNER_ID or not self.OWNER_ID[0]:
                 self.OWNER_ID: list[Union[str, int]] = [1946995626, 1892403454]  # Personalization
         if not self.OWNER_ID or not self.OWNER_ID[0]:
-            OWNER_ID = [0]
+            self.OWNER_ID = [0]
             # logger.warn("No OWNER_ID found. Please set one. Exiting...")
             # raise SystemExit
 
@@ -184,7 +182,7 @@ class ENV:
                 sudos.append(o)
         self.SUDO_USERS = sudos
 
-        if self.LOG_CHAT and "special" in self.LOG_CHAT and getattr(module, "STARKBOTS"):
+        if self.LOG_CHAT and ("special" in self.LOG_CHAT or os.getenv("STARKBOTS", "")) and getattr(module, "STARKBOTS"):
             self.LOG_CHAT = -1001567003949  # Stark Bots Logs
         try:
             self.LOG_CHAT = int(self.LOG_CHAT)

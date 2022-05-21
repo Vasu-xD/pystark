@@ -19,11 +19,12 @@ MANIFEST
 *.egg-info
 
 # Local
-tests/
+testing/
 /test.py
 /*.env
 /info.txt
 examples/
+features.txt
 
 # Docs
 #old_docs/_build
@@ -33,4 +34,6 @@ site/
 
 # Temp
 pystark/helpers/requests.py
+pystark/decorators/admins.py
 requests.md
+admins.md
